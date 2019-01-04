@@ -1,0 +1,39 @@
+version: '3.6'
+services:
+  db:
+    image: mariadb:10.4
+    build:
+      context: .
+      dockerfile: mariadb/Dockerfile
+    ports:
+      - "8080:30000"
+    container_name: Database_mariadb
+    volumes:
+      - './docker/db:/var/lib/mysql'
+    environment:
+      - MYSQL_ROOT_PASSWORD=test1
+      - MYSQL_DATABASE=mariadb
+
+  apachephp:
+    image: 'php:7.2'
+    build: 
+      context: .
+      dockerfile: php/Dockerfile
+    container_name: Apache_php
+    volumes: ['www/var/www/site']
+    environment: ['php_EXTENTION: pdo/pdo_msqli']
+    links: 
+      - "db:db"
+
+  adminer:
+    image: 'adminer'
+    build: 
+      context: .
+      dockerfile: adminer/Dockerfile
+    container_name: Adminer
+    ports:
+      - "8080:50000"
+    links: ['apachephp']
+    depends_on:
+      - db
+
